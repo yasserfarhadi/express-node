@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const body = {
+        name: 'bbk',
+        lastName: 'far',
+      };
+
+      const formBody = [];
+
+      for (const prop in body) {
+        const key = encodeURIComponent(prop);
+        const value = encodeURIComponent(body[prop]);
+        formBody.push(`${key}=${value}`);
+      }
+
+      const stringFormBody = formBody.join('&');
+
+      const ourRequest = fetch('http://localhost:5000/ajax', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        },
+        body: stringFormBody,
+      })
+        .then((res) => res.json())
+        .then(console.log);
+    </script>
+  </body>
+</html>

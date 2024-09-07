@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const apiKey = 'API KEY FROM TMDB';
-const apiBaseUrl = 'http://api.themoviedb.org/3';
-const nowPlayingUrl = `${apiBaseUrl}/movie/now_playing?api_key=${apiKey}`;
+// const apiKey = 'API KEY FROM TMDB';
+const apiKey = '123uytasdmnb';
+// const apiBaseUrl = 'http://api.themoviedb.org/3';
+const apiBaseUrl = 'http://localhost:3030';
+const nowPlayingUrl = `${apiBaseUrl}/most_popular?api_key=${apiKey}`;
 const imageBaseUrl = 'http://image.tmdb.org/t/p/w300';
 
 router.use((req, res, next) => {
@@ -78,7 +80,7 @@ router.post('/search', async (req, res) => {
     }
 
     const data = await response.json();
-
+    console.log(data);
     let results = data.results;
     if (category === 'person') {
       results = [];

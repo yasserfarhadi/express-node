@@ -5,6 +5,10 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const helmet = require('helmet');
+const passport = require('passport');
+const GitHubStrategy = require('passport-github').Strategy;
+const session = require('express-session');
+const passportConfig = require('./config');
 
 const indexRouter = require('./routes/index');
 
@@ -31,6 +35,34 @@ app.use(
     },
   })
 );
+
+app.use(
+  session({
+    secret: 'bbkloudmadafaka',
+    resave: false,
+    saveUninitialized: true,
+    // cookie: { secure: true },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(
+  new GitHubStrategy(passportConfig, function (
+    accessToken,
+    refreshToken,
+    profile,
+    cb
+  ) {
+    return cb(null, profile);
+  })
+);
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

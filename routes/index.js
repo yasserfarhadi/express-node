@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 
-const apiKey = 'API KEY FROM TMDB';
+// const apiKey = 'API KEY FROM TMDB';
+const apiKey = 'f7fcd22700b0a38c5343dd3cb662d2d4';
 const apiBaseUrl = 'http://api.themoviedb.org/3';
 const nowPlayingUrl = `${apiBaseUrl}/movie/now_playing?api_key=${apiKey}`;
 const imageBaseUrl = 'http://image.tmdb.org/t/p/w300';
@@ -12,6 +14,7 @@ router.use((req, res, next) => {
 });
 
 router.get('/', async function (req, res, next) {
+  console.log(req.user);
   try {
     const response = await fetch(nowPlayingUrl, {
       method: 'GET',
@@ -51,6 +54,16 @@ router.get('/movie/:id', async (req, res) => {
     res.render('error', { message: err?.message || 'Unexpected Error' });
   }
 });
+
+router.get('/login', passport.authenticate('github'));
+
+router.get(
+  '/auth',
+  passport.authenticate('github', {
+    successRedirect: '/',
+    failureRedirect: '/loginFailure',
+  })
+);
 
 router.post('/search', async (req, res) => {
   try {

@@ -1,30 +1,28 @@
 const express = require('express');
-const db = require('../database/db');
+const mysqldb = require('../db/mysqlConn');
+
 const router = express.Router();
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  const query = 'SELECT * FROM city_weathers WHERE id > $1';
-  const scaryDataFromInternet = 36;
-
-  db.query(query, [scaryDataFromInternet], (err, dbResponse) => {
-    console.log(dbResponse);
-    res.json(dbResponse);
-  });
-
-  // pool.end();
+  const dataFromTheScaryIntenet = 3;
+  mysqldb.query(
+    'SELECT * FROM tasks WHERE id > ?',
+    [dataFromTheScaryIntenet],
+    function (error, results, fields) {
+      if (error) throw error;
+      console.log('The solution is: ', results[0].solution);
+      res.json(results[0].solution);
+    }
+  );
 });
 
 router.get('/cities', function (req, res, next) {
-  const query = 'SELECT * FROM city_weathers WHERE id <= $1';
-  const scaryDataFromInternet = 36;
-
-  db.query(query, [scaryDataFromInternet], (err, dbResponse) => {
-    console.log(dbResponse);
-    res.json(dbResponse);
+  mysqldb.query('SELECT 4 + 4 AS solution', function (error, results, fields) {
+    if (error) throw error;
+    console.log('The solution is: ', results[0].solution);
+    res.json(results[0].solution);
   });
-
-  // pool.end();
 });
 
 module.exports = router;

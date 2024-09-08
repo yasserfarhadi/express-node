@@ -1,28 +1,33 @@
+const fs = require('node:fs/promises');
 const express = require('express');
-const mysqldb = require('../db/mysqlConn');
+const multer = require('multer');
 
 const router = express.Router();
+const upload = multer({ dest: 'public/images' });
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  const dataFromTheScaryIntenet = 3;
-  mysqldb.query(
-    'SELECT * FROM tasks WHERE id > ?',
-    [dataFromTheScaryIntenet],
-    function (error, results, fields) {
-      if (error) throw error;
-      console.log('The solution is: ', results[0].solution);
-      res.json(results[0].solution);
-    }
-  );
+  res.render('index', { title: 'Express' });
 });
 
-router.get('/cities', function (req, res, next) {
-  mysqldb.query('SELECT 4 + 4 AS solution', function (error, results, fields) {
-    if (error) throw error;
-    console.log('The solution is: ', results[0].solution);
-    res.json(results[0].solution);
+router.post('/formsub', upload.single('meme'), (req, res) => {
+  const path = req.file.path;
+  const newPath = `public/images/${req.file.filename}-${req.file.originalname}`;
+  fs.rename(path, newPath, (err) => {
+    if (err) throw err;
+    res.json({ file: req.file });
   });
+});
+router.post('/formsubarray', upload.array('meme'), async (req, res) => {
+  console.log(req.files);
+  const allPromises = [];
+  req.files.forEach((file) => {
+    const path = file.path;
+    const newPath = `public/images/${file.filename}-${file.originalname}`;
+    allPromises.push(fs.rename(path, newPath));
+  });
+  await Promise.all(allPromises);
+  res.json(req.files);
 });
 
 module.exports = router;

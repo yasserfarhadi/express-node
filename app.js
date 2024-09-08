@@ -1,53 +1,22 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const rateLimit = require('express-rate-limit').rateLimit;
+const fs = require('node:fs');
+const https = require('node:https');
+const express = require('express');
 
-var indexRouter = require('./routes/index');
+const app = express();
 
-var app = express();
+const key = fs.readFileSync('./cert/cert.key');
+const cert = fs.readFileSync('./cert/cert.crt');
 
-// app.use(cors())
+const secureExpressServer = https.createServer(
+  {
+    key,
+    cert,
+  },
+  app
+);
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000, // 15 minutes
-  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-  // store: ... , // Redis, Memcached, etc. See below.
-  message: 'Too many requests from this IP, please try later',
+app.get('/test', (req, res) => {
+  res.json({ msg: 'Hello' });
 });
 
-app.use(limiter);
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
+secureExpressServer.listen(3000, () => console.log('Listening on 3000...'));
